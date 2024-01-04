@@ -31,18 +31,18 @@ var vertexColors = [
 
 // Parameters controlling the size of the Robot's arm
 
-var BASE_HEIGHT      = 2.0;
-var BASE_WIDTH       = 3.0;
-var BODY_HEIGHT = 3.0;
-var BODY_WIDTH  = 0.5;
-var HEAD_HEIGHT = 1.0;
-var HEAD_WIDTH  = 1.0;
+var BASE_HEIGHT      = 1.0;
+var BASE_WIDTH       = 10.0;
+var BODY_HEIGHT = 10.0;
+var BODY_WIDTH  = 1;
+var HEAD_HEIGHT = 3.0;
+var HEAD_WIDTH  = 3.0;
 
 //!!!
 var BLADE_THICKNESS      = 0.5;
-var BLADE_HORIZONTAL_HEIGHT = 5.0; // Height of the cross
+var BLADE_HORIZONTAL_HEIGHT = 13.0; // Height of the cross
 var BLADE_HORIZONTAL_WIDTH = 1.0;
-var BLADE_VERTICAL_WIDTH = 5.0;  // Thickness of the cross
+var BLADE_VERTICAL_WIDTH = 13.0;  // Thickness of the cross
 var BLADE_VERTICAL_HEIGHT = 1.0; 
 //!!!
 
@@ -58,10 +58,11 @@ var Head = 2;
 
 //!!!
 var Blade = 3;
+var HeadUD = 4;
 //!!!
 
 //added 1 array
-var theta= [ 0, 0, 0, 0];
+var theta= [ 0, 0, 0, 0, 0];
 
 var angle = 0;
 
@@ -172,6 +173,9 @@ window.onload = function init() {
     document.getElementById("slider4").onchange = function() {
         theta[3] =  event.srcElement.value;
    };
+   document.getElementById("slider5").onchange = function() {
+    theta[4] =  event.srcElement.value;
+};
    ///!!!
     
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
@@ -199,7 +203,7 @@ function base() {
 
 function head() {
     var s = scale4(HEAD_WIDTH, HEAD_HEIGHT, HEAD_WIDTH);
-    var instanceMatrix = mult(translate( 0.0, 0.5 * HEAD_HEIGHT, 0.0 ),s);    
+    var instanceMatrix = mult(translate( 0.0,  0.5 * HEAD_HEIGHT, 0.0 ),s);    
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
@@ -247,7 +251,7 @@ var render = function() {
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
-    modelViewMatrix = mult(translate(0.0, -5 * BASE_HEIGHT, 0.0), rotate(theta[Base], 0, 1, 0));
+    modelViewMatrix = mult(translate(0.0, -10 * BASE_HEIGHT, 0.0), rotate(theta[Base], 0, 1, 0));
     base();
     
     modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0)); 
@@ -255,11 +259,12 @@ var render = function() {
     body();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0, BODY_HEIGHT, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadUD], 1, 0, 0)); // upper arm up/down rotation
     modelViewMatrix  = mult(modelViewMatrix, rotate(theta[Head], 0, 1, 0 ));
     head();
 
     //!!!
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, 0.5*HEAD_HEIGHT, 1.0));
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, 0.5*HEAD_HEIGHT, (0.5*HEAD_WIDTH) + (0.5*BLADE_THICKNESS)));
     modelViewMatrix  = mult(modelViewMatrix, rotate(theta[Blade], 0, 0, 1) );
     blade();
 
