@@ -31,15 +31,15 @@ var vertexColors = [
 
 // Parameters controlling the size of the Robot's arm
 
-var BASE_HEIGHT      = 1.0;
-var BASE_WIDTH       = 10.0;
+var BASE_HEIGHT = 1.0;
+var BASE_WIDTH  = 10.0;
 var BODY_HEIGHT = 10.0;
 var BODY_WIDTH  = 1;
 var HEAD_HEIGHT = 3.0;
 var HEAD_WIDTH  = 3.0;
 
 //!!!
-var BLADE_THICKNESS      = 0.5;
+var BLADE_THICKNESS = 0.5;
 var BLADE_HORIZONTAL_HEIGHT = 13.0; // Height of the cross
 var BLADE_HORIZONTAL_WIDTH = 1.0;
 var BLADE_VERTICAL_WIDTH = 13.0;  // Thickness of the cross
