@@ -190,6 +190,7 @@ window.onload = function init() {
 //----------------------------------------------------------------------------
 
 
+
 function base() {
     var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
@@ -244,7 +245,6 @@ function blade() {
 
 
 
-
 //!!!
 
 var render = function() {
@@ -267,8 +267,7 @@ var render = function() {
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0, 0.5*HEAD_HEIGHT, (0.5*HEAD_WIDTH) + (0.5*BLADE_THICKNESS)));
     modelViewMatrix  = mult(modelViewMatrix, rotate(theta[Blade], 0, 0, 1) );
     blade();
-
-    //!!!
+ //!!!
 
 
 
