@@ -41,47 +41,61 @@
 </head>
 
 <body>
+    <div class="header" >
+        <h1 >CPC 354 : Assigment 2 Group 09</h1>
+      </div>
+    <div class="container">
+        <table border="0" style="width: 100%; height: 100%;">
+           
+            <th style="background-color: #395B64; width: 30%;height: 100%; border-radius: 10px;">
+            <div class="container-slider">
+                <div id="slider1">
+                body angle -180 <input id="slide" type="range"
+                min="-180" max="180" step="10" value="0"
+                />
+                180
+                </div><br/>
+                
+                <div id="slider2">
+                    body angle -180 <input id="slide" type="range"
+                    min="-180" max="180" step="10" value="0"
+                />
+                180
+                </div><br/>
+                
+                <div id="slider3">
+                    head L-R angle -180 <input id="slide" type="range"
+                    min="-90" max="90" step="10" value="0"
+                />
+                180
+                </div><br/>
 
-    <div id="slider1">
-        body angle -180 <input id="slide" type="range"
-         min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        
-        <div id="slider2">
-            body angle -180 <input id="slide" type="range"
-            min="-180" max="180" step="10" value="0"
-          />
-         180
-        </div><br/>
-        
-        <div id="slider3">
-            head L-R angle -180 <input id="slide" type="range"
-            min="-90" max="90" step="10" value="0"
-          />
-         180
-        </div><br/>
+                <!--  -->
+                <div id="slider4">
+                    blade angle -180 <input id="slide" type="range"
+                    min="-180" max="180" step="10" value="0"
+                    />
+                    180
+                </div><br/>
+                <div id="slider5">
+                    head U-D angle -180 <input id="slide" type="range"
+                    min="-45" max="10" step="10" value="0"
+                    />
+                    180
+                    </div>
+                <!--  -->
+            </div>
+        </th>
+        <th style="width: 30%;height: 100%;" >
+            <div class="container-webgl">
+                <canvas id="gl-canvas" width="1080" height="720" class="canvas-webgl">
+                    Oops ... your browser doesn't support the HTML5 canvas element
+                </canvas>
+            </div>
+        </th>
 
-        <!--  -->
-        <div id="slider4">
-            blade angle -180 <input id="slide" type="range"
-             min="-180" max="180" step="10" value="0"
-              />
-             180
-        </div><br/>
-        <div id="slider5">
-            head U-D angle -180 <input id="slide" type="range"
-             min="-45" max="10" step="10" value="0"
-              />
-             180
-            </div><br/>
-        <!--  -->
- 
-        <canvas id="gl-canvas" width="1080" height="720">
-            Oops ... your browser doesn't support the HTML5 canvas element
-        </canvas>
-    
+        </table>
+    </div>
 </body>
 </html>
 

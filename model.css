@@ -1,0 +1,53 @@
+body {
+    font-weight: bold;
+    background-color: black;
+    font-size: large;
+    align-items: center;
+    justify-content: center;
+    flex: auto;
+    height: 100vh;
+    margin: 0;
+
+}
+
+.header{
+    color: whitesmoke;
+    width: fit-content;
+    background-color: rgba(223, 223, 223, 0.2);
+    text-align: center;
+    border-radius: 10px;
+    margin: auto;
+}
+
+.header h1{
+    padding: 10px;
+}
+
+.container {
+    align-items: center;
+    justify-content: center;
+    flex: auto;
+    margin: 50px 10px 50px 10px;
+    text-align: center;
+    
+}
+
+.container-slider{
+    padding: 20px;
+    text-align: center;
+    background-color: rgba(223, 223, 223, 0.5);
+    margin: 20px;
+    border-radius: 10px;
+    
+}
+
+.container-webgl{
+    background-color: rgb(253, 251, 251);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.canvas-webgl{
+    border-radius: 10px;
+    background-color: transparent;
+}
