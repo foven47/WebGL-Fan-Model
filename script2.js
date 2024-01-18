@@ -1,5 +1,5 @@
 //Set default value for theta
-var theta = [0, 0, 0, 0, 0, 0];
+var theta = [0, 0, 0, 0, 0, 0, 0];
 var moveLeft = 0;
 
 var BaseUD = 0;
@@ -7,7 +7,8 @@ var BaseLR = 1;
 var Body = 2;
 var HeadUD = 3;
 var HeadLR = 4;
-var Blade = 5;
+var HeadRing = 5;
+var Blade = 6;
 
 var modelViewMatrix;
 
@@ -20,6 +21,9 @@ var BODY_WIDTH = 1.0;
 var HEAD_HEIGHT = 1.5;
 var HEAD_WIDTH = 1.5;
 var HEAD_Z = 2.0;
+
+var HEAD_RING_HEIGHT = 6.5;
+var HEAD_RING_THICK = 2;
 
 var BLADE_HEIGHT = 5.0;
 var BLADE_WIDTH = 1.5;
@@ -44,7 +48,8 @@ window.onload = function init() {
 
   //Enable the depth testing
   gl.enable(gl.DEPTH_TEST);
-
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   // Create and initialize  buffer objects
 
   //Create 3D object : Cylinder
@@ -59,6 +64,12 @@ window.onload = function init() {
   myCylinder.rotate(90.0, [1, 0, 0]); //Rotate cylinder a bit
   headBuffers = createBuffersForShape(myCylinder); //Create buffer for sphere
 
+  var myCylinder2 = cylinder(72, 3, false);
+  myCylinder2.scale(1.0, 1.0, 1.0); //Smaller the size of cylinder
+  myCylinder2.rotate(90.0, [1, 0, 0]); //Rotate cylinder a bit
+  myCylinder2.translate(0.0, 0.0, 0.0); //No movement for cylinder
+  headRing = createBuffersForShape(myCylinder2);
+
   //Create 3D shape : Sphere
   var mySphere = sphere(5);
   mySphere.scale(1, 1, 1); //Smaller the size of sphere
@@ -66,7 +77,7 @@ window.onload = function init() {
   // headBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
 
   //Create 3D object : Cube
-  var myCube = cube(1);
+  var myCube = cube(1, 0.3);
   myCube.rotate(0.0, [1, 1, 1]); //Rotate cube a bit
   myCube.translate(0.0, 0.0, 0.0); //Move cube to the right
   bladeBuffers = createBuffersForShape(myCube); //Create buffer for cube
@@ -188,14 +199,23 @@ function drawHead(shapeBuffers) {
   setAttributesForShape(shapeBuffers);
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
-function drawHeadButton(shapeBuffers) {
-  var s = scalem(HEAD_BUTTON_WIDTH, HEAD_BUTTON_HEIGHT, HEAD_BUTTON_WIDTH);
+function drawHeadRing(shapeBuffers) {
+  var s = scalem(HEAD_RING_HEIGHT, HEAD_RING_HEIGHT, HEAD_RING_THICK);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
+
+// function drawHeadButton(shapeBuffers) {
+//   var s = scalem(HEAD_BUTTON_WIDTH, HEAD_BUTTON_HEIGHT, HEAD_BUTTON_WIDTH);
+//   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
+//   var t = mult(modelViewMatrix, instanceMatrix);
+//   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+//   setAttributesForShape(shapeBuffers);
+//   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
+// }
 
 function drawBlade(shapeBuffers) {
   var s = scalem(BLADE_WIDTH, BLADE_HEIGHT, BLADE_THICK);
@@ -224,13 +244,13 @@ var render = function () {
   );
 
   // Example: Auto-rotate around the y-axis
-  theta[Blade] += 0.5; // Increment rotation angle
+  // theta[Blade] += 0.5; // Increment rotation angle
 
   // moveLeft +=0.01;
 
   modelViewMatrix = mat4();
 
-  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+  modelViewMatrix = mult(modelViewMatrix, translate(0.0, -5.0, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[BaseUD], [1, 0, 0])); // Y-axis rotation
   modelViewMatrix = mult(rotate(theta[BaseLR], [0, 1, 0]), modelViewMatrix); // X-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
@@ -248,7 +268,12 @@ var render = function () {
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
   drawHead(headBuffers);
 
-  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0, 0.5 * HEAD_Z));
+  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0.5 * HEAD_Z));
+  modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadRing], [0, 1, 0])); // Y-axis rotation
+  modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
+  drawHeadRing(headRing);
+
+  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0, 0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[Blade], [0, 0, 1]));
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
   drawBlade(bladeBuffers);
