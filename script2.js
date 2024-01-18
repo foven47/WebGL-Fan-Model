@@ -1,5 +1,5 @@
 //Set default value for theta
-var theta = [0, 0, 0, 0, 0, 0];
+var theta = [0, 0, 0, 0, 0, 0, 0];
 var moveLeft = 0;
 
 var BaseUD = 0;
@@ -7,19 +7,23 @@ var BaseLR = 1;
 var Body = 2;
 var HeadUD = 3;
 var HeadLR = 4;
-var Blade = 5;
+var HeadRing = 5;
+var Blade = 6;
 
 var modelViewMatrix;
 
 var BASE_HEIGHT = 1.0;
 var BASE_WIDTH = 5.0;
 
-var BODY_HEIGHT = 5.0;
+var BODY_HEIGHT = 7.0;
 var BODY_WIDTH = 1.0;
 
 var HEAD_HEIGHT = 1.5;
 var HEAD_WIDTH = 1.5;
-var HEAD_Z = 2.0;
+var HEAD_Z = 3.0;
+
+var HEAD_RING_HEIGHT = 6.5;
+var HEAD_RING_THICK = 1;
 
 var BLADE_HEIGHT = 5.0;
 var BLADE_WIDTH = 1.5;
@@ -44,7 +48,8 @@ window.onload = function init() {
 
   //Enable the depth testing
   gl.enable(gl.DEPTH_TEST);
-
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   // Create and initialize  buffer objects
 
   //Create 3D object : Cylinder
@@ -59,6 +64,12 @@ window.onload = function init() {
   myCylinder.rotate(90.0, [1, 0, 0]); //Rotate cylinder a bit
   headBuffers = createBuffersForShape(myCylinder); //Create buffer for sphere
 
+  var myCylinder2 = cylinder(72, 3, false);
+  myCylinder2.scale(1.0, 1.0, 1.0); //Smaller the size of cylinder
+  myCylinder2.rotate(90.0, [1, 0, 0]); //Rotate cylinder a bit
+  myCylinder2.translate(0.0, 0.0, 0.0); //No movement for cylinder
+  headRing = createBuffersForShape(myCylinder2);
+
   //Create 3D shape : Sphere
   var mySphere = sphere(5);
   mySphere.scale(1, 1, 1); //Smaller the size of sphere
@@ -66,10 +77,31 @@ window.onload = function init() {
   // headBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
 
   //Create 3D object : Cube
-  var myCube = cube(1);
+  var myCube = cube(1, 0.3);
   myCube.rotate(0.0, [1, 1, 1]); //Rotate cube a bit
   myCube.translate(0.0, 0.0, 0.0); //Move cube to the right
   bladeBuffers = createBuffersForShape(myCube); //Create buffer for cube
+
+  //Configure texture
+  function createTexture(id) {
+    const image = document.getElementById(id);
+    const texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      gl.NEAREST_MIPMAP_LINEAR
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    return texture;
+  }
+
+  woodTextures = createTexture("woodText");
+  plainTexture = createTexture("plainText");
 
   //Load shaders and initialize attribute buffers
   program = initShaders(gl, "vertex-shader", "fragment-shader");
@@ -155,6 +187,9 @@ function createBuffersForShape(data) {
   //Store shape data buffers in vertex color array
   const vertexcols = data.TriangleVertexColors;
 
+  //Store shape data buffers in texture coordinates array
+  const textcords = data.TextureCoordinates;
+
   //Setting all buffers
 
   //Vertex color buffer
@@ -167,15 +202,21 @@ function createBuffersForShape(data) {
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 
+  //Texture coordinates buffer
+  var tBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(textcords), gl.STATIC_DRAW);
+
   return {
     cBuffer,
     vBuffer,
+    tBuffer,
     numVertices: points.length,
   };
 }
 
 //Set attributes for each buffers of shape
-function setAttributesForShape({ cBuffer, vBuffer }) {
+function setAttributesForShape({ cBuffer, vBuffer, tBuffer }) {
   //Attribute location -- vColor
   gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
   var vColor = gl.getAttribLocation(program, "vColor");
@@ -187,21 +228,30 @@ function setAttributesForShape({ cBuffer, vBuffer }) {
   var vPosition = gl.getAttribLocation(program, "vPosition");
   gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(vPosition);
+
+  //Attribute location -- vTexCoord
+  gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+  var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
+  gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(vTexCoord);
 }
 
 //Draw shape of the sphere, cyliner and cube by
 // Create a buffer object, initialize it, and associate it with the
 // associated attribute variable in our vertex shader
-function drawBase(shapeBuffers) {
+function drawBase(shapeBuffers, texture) {
   var s = scalem(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 
-function drawBody(shapeBuffers) {
+function drawBody(shapeBuffers, texture) {
   var s = scalem(BODY_WIDTH, BODY_HEIGHT, BODY_WIDTH);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
@@ -209,29 +259,47 @@ function drawBody(shapeBuffers) {
   setAttributesForShape(shapeBuffers);
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
-function drawHead(shapeBuffers) {
+function drawHead(shapeBuffers, texture) {
   var s = scalem(HEAD_WIDTH, HEAD_HEIGHT, HEAD_Z);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
-function drawHeadButton(shapeBuffers) {
-  var s = scalem(HEAD_BUTTON_WIDTH, HEAD_BUTTON_HEIGHT, HEAD_BUTTON_WIDTH);
+function drawHeadRing(shapeBuffers, texture) {
+  var s = scalem(HEAD_RING_HEIGHT, HEAD_RING_HEIGHT, HEAD_RING_THICK);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 
-function drawBlade(shapeBuffers) {
+// function drawHeadButton(shapeBuffers) {
+//   var s = scalem(HEAD_BUTTON_WIDTH, HEAD_BUTTON_HEIGHT, HEAD_BUTTON_WIDTH);
+//   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
+//   var t = mult(modelViewMatrix, instanceMatrix);
+//   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+//   setAttributesForShape(shapeBuffers);
+//   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
+// }
+
+function drawBlade(shapeBuffers, texture) {
   var s = scalem(BLADE_WIDTH, BLADE_HEIGHT, BLADE_THICK);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 
   //2nd Blade
@@ -240,6 +308,9 @@ function drawBlade(shapeBuffers) {
   var t2 = mult(modelViewMatrix, instanceMatrix2);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t2));
   setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 
@@ -253,34 +324,39 @@ var render = function () {
   );
 
   // Example: Auto-rotate around the y-axis
-  theta[Blade] += 0.5; // Increment rotation angle
+  // theta[Blade] += 0.5; // Increment rotation angle
 
   // moveLeft +=0.01;
 
   modelViewMatrix = mat4();
 
-  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
+  modelViewMatrix = mult(modelViewMatrix, translate(0.0, -6.0, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[BaseUD], [1, 0, 0])); // Y-axis rotation
   modelViewMatrix = mult(rotate(theta[BaseLR], [0, 1, 0]), modelViewMatrix); // X-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawBase(baseBuffers);
+  drawBase(baseBuffers, woodTextures);
 
-  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 2 * BASE_HEIGHT, 0.0));
+  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 3, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[Body], [1, 0, 0]));
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawBody(bodyBuffers);
+  drawBody(bodyBuffers, woodTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0, 0.5 * BODY_HEIGHT, 0.0));
   // modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadUD], [1, 0, 0])); // Y-axis rotation
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadLR], [0, 1, 0])); // Y-axis rotation
   // modelViewMatrix = mult(rotate(theta[HeadLR], [0, 1, 0]), modelViewMatrix); // X-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawHead(headBuffers);
+  drawHead(headBuffers, woodTextures);
 
-  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0, 0.5 * HEAD_Z));
+  modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0.5 * HEAD_Z));
+  modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadRing], [0, 1, 0])); // Y-axis rotation
+  modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
+  drawHeadRing(headRing, woodTextures);
+
+  modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0, 0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[Blade], [0, 0, 1]));
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawBlade(bladeBuffers);
+  drawBlade(bladeBuffers, plainTexture);
 
   // modelViewMatrix = mat4();
   // modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));

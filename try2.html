@@ -6,14 +6,19 @@
     <title>CPC 354 Assigment 2</title>
     <link rel="stylesheet" href="model.css"></link>
 
+
     <script id="vertex-shader" type="x-shader/x-vertex">
       attribute  vec4 vPosition;
       attribute  vec4 vColor;
-      attribute vec4 vNormal;
+
+      attribute vec2 vTexCoord; // Add texture coordinates
+
 
       varying vec4 fColor;
 
-      uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+      varying vec2 fTexCoord; // Varying texture coordinates
+
+
       uniform mat4 modelViewMatrix;
       uniform mat4 projectionMatrix;
       uniform vec4 lightPosition;
@@ -21,35 +26,11 @@
 
       void main()
       {
-        vec3 pos = -(modelViewMatrix * vPosition).xyz;
-        vec3 light = lightPosition.xyz;
-        vec3 L = normalize( light - pos );
+          fColor = vColor;
 
-        
-        vec3 E = normalize( -pos );
-        vec3 H = normalize( L + E );
+          fTexCoord = vTexCoord; // Pass texture coordinates to the fragment shader
 
-        // Transform vertex normal into eye coordinates
-        
-        vec3 N = normalize( (modelViewMatrix*vNormal).xyz);
-
-        // Compute terms in the illumination equation
-        vec4 ambient = ambientProduct;
-
-        float Kd = max( dot(L, N), 0.0 );
-        vec4  diffuse = Kd*diffuseProduct;
-
-        float Ks = pow( max(dot(N, H), 0.0), shininess );
-        vec4  specular = Ks * specularProduct;
-        
-        if( dot(L, N) < 0.0 ) {
-        specular = vec4(0.0, 0.0, 0.0, 1.0);
-        } 
-
-        gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-        
-        fColor = ambient + diffuse +specular;
-        fColor.a = 1.0;    
+          gl_Position = projectionMatrix * modelViewMatrix * vPosition;
       }
     </script>
 
@@ -59,9 +40,15 @@
 
       varying  vec4 fColor;
 
+      varying vec2 fTexCoord; // Receiving texture coordinates
+
+      uniform sampler2D theTexture; // Texture sampler
+
       void main()
       {
-          gl_FragColor = fColor;
+    gl_FragColor = fColor * texture2D(theTexture, fTexCoord);
+    //gl_FragColor = fColor; //If dont want texture
+
       }
     </script>
     <!--Ensure everything is loaded properly before any function call-->
@@ -99,59 +86,55 @@
             value="0"
             step="1"
           />360</div>
-
           <div>
-          HeadUD -45<input
-            type="range"
-            id="headUD"
-            min="-45"
-            max="10"
-            value="0"
-            step="1"
-          /></div>
-          
-          <div>
-          10 HeadLR -90<input
-            type="range"
-            id="headLR"
-            min="-90"
-            max="90"
-            value="0"
-            step="1"
-          />90
-        </div>
-
-          <div>
-          blade 0<input
-            type="range"
-            id="blade"
-            min="0"
-            max="360"
-            value="0"
-            step="1"
-          />360
-        </div>
-        <div >
-          Ambient Color <input id="ambientLight" type="range" min="0.1" max="1" value="0.1" step="0.1"
-          oninput="LAmbient.innerText=ambientLight.value" />
-        <span id="LAmbient">0.1</span>
-        </div>
-      </div>
-      </th>
-
-        <th style="width: 70%;height: 100%;" >
-          <div class="container-webgl">
-            <canvas
-            id="gl-canvas"
-            width="1080" height="720"
-            style="background-color: transparent"
-            class="canvas-webgl"
-            >
-            Oops ... your browser doesn't support the HTML5 canvas element
-            </canvas>
-          <div>
-        </th>
-      </table>
-  </div>
+            HeadUD -45<input
+              type="range"
+              id="headUD"
+              min="-45"
+              max="10"
+              value="0"
+              step="1"
+            /></div>
+            
+            <div>
+            10 HeadLR -90<input
+              type="range"
+              id="headLR"
+              min="-90"
+              max="90"
+              value="0"
+              step="1"
+            />90
+          </div>
+  
+            <div>
+            blade 0<input
+              type="range"
+              id="blade"
+              min="0"
+              max="360"
+              value="0"
+              step="1"
+            />360
+          </div>
+          </div></th>
+  
+          <th style="width: 70%;height: 100%;" >
+            <div class="container-webgl">
+              <canvas
+              id="gl-canvas"
+              width="1080" height="720"
+              style="background-color: transparent"
+              class="canvas-webgl"
+              >
+              Oops ... your browser doesn't support the HTML5 canvas element
+              </canvas>
+            <div>
+          </th>
+        </table>
+    </div>
   </body>
+  <img id="woodText" src="Texture/wood3.jpg" hidden />
+  <img id="plainText" src="Texture/white.jpg" hidden />
+
 </html>
