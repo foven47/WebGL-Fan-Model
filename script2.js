@@ -154,6 +154,41 @@ window.onload = function init() {
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
   };
 
+  //Toggle the light position
+  document.getElementById("xlightpositions").onchange = function () {
+    var x = document.getElementById("xlightpositions").value;
+    lightPosition = vec4(x, 1.0, 1.0, 0.0);
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+  };
+  document.getElementById("ylightpositions").onchange = function () {
+    var y = document.getElementById("ylightpositions").value;
+    lightPosition = vec4(1.0, y, 1.0, 0.0);
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+  };
+
+  //Toggle material shininess
+  document.getElementById("materialshininess").onchange = function () {
+    materialShininess = document.getElementById("materialshininess").value;
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
+  };
+
+  //Toggle the diffuse light
+  document.getElementById("diffuseLight").onchange = function () {
+    var x = document.getElementById("diffuseLight").value;
+    lightDiffuse = vec4(x, x, 0.1, 1.0);
+    diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+  };
+
+  //Toggle the specular light
+  document.getElementById("specularLight").onchange = function () {
+    var x = document.getElementById("specularLight").value;
+    lightSpecular = vec4(x, x, 0.1, 1.0);
+    specularProduct = mult(lightSpecular, materialSpecular);
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+  };
+
+
   //shade, ambient, lighting
   var lightPosition = vec4(10.0, 10.0, 10.0, 0.0 );
   var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
@@ -163,7 +198,7 @@ window.onload = function init() {
   var materialAmbient = vec4( 1.0, 0.8, 0.0, 1.0 );
   var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
   var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
-  var materialShininess = 20.0;
+  var materialShininess = 10.0;
   
   var ambientProduct = mult(lightAmbient, materialAmbient);
   var diffuseProduct = mult(lightDiffuse, materialDiffuse);
