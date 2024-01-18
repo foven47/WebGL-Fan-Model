@@ -9,7 +9,6 @@
 
     <script id="vertex-shader" type="x-shader/x-vertex">
       attribute  vec4 vPosition;
-      attribute vec4 vNormal;
       attribute  vec4 vColor;
 
       attribute vec2 vTexCoord; // Add texture coordinates
@@ -19,44 +18,17 @@
 
       varying vec2 fTexCoord; // Varying texture coordinates
 
-      uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+
       uniform mat4 modelViewMatrix;
       uniform mat4 projectionMatrix;
-      uniform vec4 lightPosition;
-      uniform float shininess;
 
       void main()
       {
-          vec3 pos = -(modelViewMatrix * vPosition).xyz;
-          vec3 light = lightPosition.xyz;
-          vec3 L = normalize( light - pos );
-
-          
-          vec3 E = normalize( -pos );
-          vec3 H = normalize( L + E );
-
-          // Transform vertex normal into eye coordinates
-          
-          vec3 N = normalize( (modelViewMatrix*vNormal).xyz);
-
-          // Compute terms in the illumination equation
-          vec4 ambient = ambientProduct;
-
-          float Kd = max( dot(L, N), 0.0 );
-          vec4  diffuse = Kd*diffuseProduct;
-
-          float Ks = pow( max(dot(N, H), 0.0), shininess );
-          vec4  specular = Ks * specularProduct;
-
-          if( dot(L, N) < 0.0 ) {
-            specular = vec4(0.0, 0.0, 0.0, 1.0);
-            } 
+          fColor = vColor;
 
           fTexCoord = vTexCoord; // Pass texture coordinates to the fragment shader
 
           gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-          fColor = ambient + diffuse +specular;
-            fColor.a = 1.0;    
       }
     </script>
 
@@ -81,7 +53,7 @@
     <script type="text/javascript" src="Common/webgl-utils.js"></script>
     <script type="text/javascript" src="Common/initShaders.js"></script>
     <script type="text/javascript" src="Common/MV.js"></script>
-    <script type="text/javascript" src="script2.js"></script>
+    <script type="text/javascript" src="textureOnly.js"></script>
     <script type="text/javascript" src="Common/geometry.js"></script>
   </head>
 
@@ -176,44 +148,9 @@
           <div>Left Right Head Rotation
             <button id="head-LR-button">Start</button>
           </div>
-          <!-- Ambient, diffuse, specular-->
-          <div >
-            Ambient Color <input id="ambientLight" type="range" min="0.1" max="1" value="0.1" step="0.1"
-            oninput="LAmbient.innerText=ambientLight.value" />
-          <span id="LAmbient">0.1</span>
-          </div>
 
-          <div>
-          Diffuse Light
-        <input id="diffuseLight" type="range" min="0.1" max="10" value="1.0" step="0.1"
-          oninput="LDiffuse.innerText=diffuseLight.value" />
-        <span id="LDiffuse">1.0</span></div>
 
-        <div>Specular Light
-        <input id="specularLight" type="range" min="0.1" max="10" value="1.0" step="0.1"
-          oninput="LSpecular.innerText=specularLight.value" />
-        <span id="LSpecular">1.0</span></div>
-
-          <!-- light position and shininess -->
-          <div>X-Axis Light Position
-          <input id="xlightpositions" type="range" min="-10" max="10" value="0.0" step="0.1"
-            oninput="xLPosition.innerText=xlightpositions.value" />
-          <span id="xLPosition">0.0</span></div>
-
-          <div>Y-Axis Light Position
-          <input id="ylightpositions" type="range" min="-10" max="10" value="0.0" step="0.1"
-            oninput="yLPosition.innerText=ylightpositions.value" />
-          <span id="yLPosition">0.0</span></div>
-
-          <div>Material Shininess
-          <input id="materialshininess" type="range" min="1" max="100" value="10" step="1"
-            oninput="MShininess.innerText=materialshininess.value" />
-          <span id="MShininess">10</span></div>
-          
-        
-        
-        
-        </div></th>
+          </div></th>
   
           <th style="width: 70%;height: 100%;" >
             <div class="container-webgl">
@@ -230,7 +167,7 @@
         </table>
     </div>
   </body>
-  <img id="woodText" src="Texture/wood3.jpg" hidden />
-  <img id="plainText" src="Texture/white.jpg" hidden />
+  <img id="woodText" src="Texture/wood4.png" hidden />
+  <img id="plainText" src="Texture/glass.jpeg" hidden />
 
 </html>

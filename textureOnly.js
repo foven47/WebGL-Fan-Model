@@ -86,7 +86,7 @@ window.onload = function init() {
   // headBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
 
   //Create 3D object : Cube
-  var myCube = cube(1, 0.3);
+  var myCube = cube(1, 1);
   myCube.rotate(0.0, [1, 1, 1]); //Rotate cube a bit
   myCube.translate(0.0, 0.0, 0.0); //Move cube to the right
   bladeBuffers = createBuffersForShape(myCube); //Create buffer for cube
@@ -128,31 +128,26 @@ window.onload = function init() {
   var baseUD = document.getElementById("baseUD");
   baseUD.addEventListener("input", function () {
     theta[BaseUD] = parseFloat(baseUD.value);
-    render();
   });
 
   var baseLR = document.getElementById("baseLR");
   baseLR.addEventListener("input", function () {
     theta[BaseLR] = parseFloat(baseLR.value);
-    render();
   });
 
   var headUD = document.getElementById("headUD");
   headUD.addEventListener("input", function () {
     theta[HeadUD] = parseFloat(headUD.value);
-    render();
   });
 
   var headLR = document.getElementById("headLR");
   headLR.addEventListener("input", function () {
     theta[HeadLR] = parseFloat(headLR.value);
-    render();
   });
 
   var blade = document.getElementById("blade");
   blade.addEventListener("input", function () {
     theta[Blade] = parseFloat(blade.value);
-    render();
   });
 
   var positionx = document.getElementById("positionx");
@@ -180,99 +175,6 @@ window.onload = function init() {
   document.getElementById("head-LR-button").onclick = function () {
     isHeadRotateLR = !isHeadRotateLR;
   };
-
-  // Setup ambient color sliders
-  document.getElementById("ambientLight").onchange = function () {
-    var x = document.getElementById("ambientLight").value;
-    lightAmbient = vec4(x, x, 0.1, 1.0);
-    ambientProduct = mult(lightAmbient, materialAmbient);
-    gl.uniform4fv(
-      gl.getUniformLocation(program, "ambientProduct"),
-      flatten(ambientProduct)
-    );
-  };
-
-  //Toggle the light position
-  document.getElementById("xlightpositions").onchange = function () {
-    var x = document.getElementById("xlightpositions").value;
-    lightPosition = vec4(x, 1.0, 1.0, 0.0);
-    gl.uniform4fv(
-      gl.getUniformLocation(program, "lightPosition"),
-      flatten(lightPosition)
-    );
-  };
-  document.getElementById("ylightpositions").onchange = function () {
-    var y = document.getElementById("ylightpositions").value;
-    lightPosition = vec4(1.0, y, 1.0, 0.0);
-    gl.uniform4fv(
-      gl.getUniformLocation(program, "lightPosition"),
-      flatten(lightPosition)
-    );
-  };
-
-  //Toggle material shininess
-  document.getElementById("materialshininess").onchange = function () {
-    materialShininess = document.getElementById("materialshininess").value;
-    gl.uniform1f(
-      gl.getUniformLocation(program, "shininess"),
-      materialShininess
-    );
-  };
-
-  //Toggle the diffuse light
-  document.getElementById("diffuseLight").onchange = function () {
-    var x = document.getElementById("diffuseLight").value;
-    lightDiffuse = vec4(x, x, 0.1, 1.0);
-    diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    gl.uniform4fv(
-      gl.getUniformLocation(program, "diffuseProduct"),
-      flatten(diffuseProduct)
-    );
-  };
-
-  //Toggle the specular light
-  document.getElementById("specularLight").onchange = function () {
-    var x = document.getElementById("specularLight").value;
-    lightSpecular = vec4(x, x, 0.1, 1.0);
-    specularProduct = mult(lightSpecular, materialSpecular);
-    gl.uniform4fv(
-      gl.getUniformLocation(program, "specularProduct"),
-      flatten(specularProduct)
-    );
-  };
-
-  //shade, ambient, lighting
-  var lightPosition = vec4(10.0, 10.0, 10.0, 0.0);
-  var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-  var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-  var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-
-  var materialAmbient = vec4(1.0, 0.8, 0.0, 1.0);
-  var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
-  var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-  var materialShininess = 10.0;
-
-  var ambientProduct = mult(lightAmbient, materialAmbient);
-  var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-  var specularProduct = mult(lightSpecular, materialSpecular);
-
-  gl.uniform4fv(
-    gl.getUniformLocation(program, "ambientProduct"),
-    flatten(ambientProduct)
-  );
-  gl.uniform4fv(
-    gl.getUniformLocation(program, "diffuseProduct"),
-    flatten(diffuseProduct)
-  );
-  gl.uniform4fv(
-    gl.getUniformLocation(program, "specularProduct"),
-    flatten(specularProduct)
-  );
-  gl.uniform4fv(
-    gl.getUniformLocation(program, "lightPosition"),
-    flatten(lightPosition)
-  );
-  gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 
   //Render the canvas per frame
   render();
@@ -356,6 +258,9 @@ function drawBody(shapeBuffers, texture) {
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 function drawHead(shapeBuffers, texture) {
@@ -445,9 +350,6 @@ var render = function () {
 
   rotatingBlade();
   leftRightHeadAnimation();
-
-  // Example: Auto-rotate around the y-axis
-  // theta[Blade] += 0.5; // Increment rotation angle
 
   // moveLeft +=0.01;
 
