@@ -38,6 +38,21 @@ var toLeft = false;
 
 var bladeSpeed = 0; // Initial rotation speed
 
+//shade, ambient, lighting
+var lightPosition = vec4(0, 0, 10.0, 0.0);
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+var materialAmbient = vec4(1.0, 0.8, 0.0, 1.0);
+var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+var materialShininess = 10.0;
+
+var ambientProduct = mult(lightAmbient, materialAmbient);
+var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+var specularProduct = mult(lightSpecular, materialSpecular);
+
 window.onload = function init() {
   //Get the html canvas element by id and stored it into canvas
   canvas = document.getElementById("gl-canvas");
@@ -236,21 +251,6 @@ window.onload = function init() {
     );
   };
 
-  //shade, ambient, lighting
-  var lightPosition = vec4(10.0, 10.0, 10.0, 0.0);
-  var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-  var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-  var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-
-  var materialAmbient = vec4(1.0, 0.8, 0.0, 1.0);
-  var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
-  var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-  var materialShininess = 10.0;
-
-  var ambientProduct = mult(lightAmbient, materialAmbient);
-  var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-  var specularProduct = mult(lightSpecular, materialSpecular);
-
   gl.uniform4fv(
     gl.getUniformLocation(program, "ambientProduct"),
     flatten(ambientProduct)
@@ -386,6 +386,8 @@ function drawHeadRing(shapeBuffers, texture) {
 // }
 
 function drawBlade(shapeBuffers, texture) {
+  gl.uniform1i(gl.getUniformLocation(program, "onlyTexture"), 1);
+
   var s = scalem(BLADE_WIDTH, BLADE_HEIGHT, BLADE_THICK);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
@@ -406,6 +408,8 @@ function drawBlade(shapeBuffers, texture) {
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
+
+  gl.uniform1i(gl.getUniformLocation(program, "onlyTexture"), 0);
 }
 
 function rotatingBlade() {
