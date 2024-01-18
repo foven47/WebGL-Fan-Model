@@ -114,6 +114,35 @@ window.onload = function init() {
     render();
   });
 
+  // Setup ambient color sliders
+  document.getElementById("ambientLight").onchange = function () {
+    var x = document.getElementById("ambientLight").value;
+    lightAmbient = vec4(x, x, 0.1, 1.0);
+    ambientProduct = mult(lightAmbient, materialAmbient);
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+  };
+
+  //shade, ambient, lighting
+  var lightPosition = vec4(10.0, 10.0, 10.0, 0.0 );
+  var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
+  var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+  var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+  var materialAmbient = vec4( 1.0, 0.8, 0.0, 1.0 );
+  var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
+  var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+  var materialShininess = 20.0;
+  
+  var ambientProduct = mult(lightAmbient, materialAmbient);
+  var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+  var specularProduct = mult(lightSpecular, materialSpecular);
+
+  gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct ));
+  gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct) );
+  gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"),flatten(specularProduct));	
+  gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition ));
+  gl.uniform1f( gl.getUniformLocation(program, "shininess"),materialShininess );
+
   //Render the canvas per frame
   render();
 };
