@@ -128,31 +128,26 @@ window.onload = function init() {
   var baseUD = document.getElementById("baseUD");
   baseUD.addEventListener("input", function () {
     theta[BaseUD] = parseFloat(baseUD.value);
-    render();
   });
 
   var baseLR = document.getElementById("baseLR");
   baseLR.addEventListener("input", function () {
     theta[BaseLR] = parseFloat(baseLR.value);
-    render();
   });
 
   var headUD = document.getElementById("headUD");
   headUD.addEventListener("input", function () {
     theta[HeadUD] = parseFloat(headUD.value);
-    render();
   });
 
   var headLR = document.getElementById("headLR");
   headLR.addEventListener("input", function () {
     theta[HeadLR] = parseFloat(headLR.value);
-    render();
   });
 
   var blade = document.getElementById("blade");
   blade.addEventListener("input", function () {
     theta[Blade] = parseFloat(blade.value);
-    render();
   });
 
   var positionx = document.getElementById("positionx");
