@@ -201,7 +201,7 @@ function cylinder(numSlices, numStacks, caps) {
   var topCenter = [0.0, top, 0.0];
   var bottomCenter = [0.0, bottom, 0.0];
 
-  var sideColor = [1.0, 0.0, 0.0, 1.0];
+  var sideColor = [1.0, 1.0, 1.0, 1.0];
   var topColor = [0.0, 1.0, 0.0, 1.0];
   var bottomColor = [0.0, 0.0, 1.0, 1.0];
 
