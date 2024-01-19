@@ -18,6 +18,8 @@ var BASE_WIDTH = 5.0;
 var BODY_HEIGHT = 7.0;
 var BODY_WIDTH = 1.0;
 
+var HEAD_UD = 0.5;
+
 var HEAD_HEIGHT = 1.5;
 var HEAD_WIDTH = 1.5;
 var HEAD_Z = 3.0;
@@ -98,7 +100,7 @@ window.onload = function init() {
   var mySphere = sphere(5);
   mySphere.scale(1, 1, 1); //Smaller the size of sphere
   mySphere.translate(0.0, 0.0, 0.0); //
-  // headBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
+  headUDBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
 
   //Create 3D object : Cube
   var myCube = cube(1, 0.3);
@@ -353,6 +355,17 @@ function drawBody(shapeBuffers, texture) {
   setAttributesForShape(shapeBuffers);
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
+function drawHeadUD(shapeBuffers, texture) {
+  var s = scalem(HEAD_UD, HEAD_UD, HEAD_UD);
+  var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
+  var t = mult(modelViewMatrix, instanceMatrix);
+  gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+  setAttributesForShape(shapeBuffers);
+
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
+}
 function drawHead(shapeBuffers, texture) {
   var s = scalem(HEAD_WIDTH, HEAD_HEIGHT, HEAD_Z);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
@@ -375,15 +388,6 @@ function drawHeadRing(shapeBuffers, texture) {
 
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
-
-// function drawHeadButton(shapeBuffers) {
-//   var s = scalem(HEAD_BUTTON_WIDTH, HEAD_BUTTON_HEIGHT, HEAD_BUTTON_WIDTH);
-//   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
-//   var t = mult(modelViewMatrix, instanceMatrix);
-//   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-//   setAttributesForShape(shapeBuffers);
-//   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
-// }
 
 function drawBlade(shapeBuffers, texture) {
   gl.uniform1i(gl.getUniformLocation(program, "onlyTexture"), 1);
@@ -445,11 +449,6 @@ var render = function () {
   rotatingBlade();
   leftRightHeadAnimation();
 
-  // Example: Auto-rotate around the y-axis
-  // theta[Blade] += 0.5; // Increment rotation angle
-
-  // moveLeft +=0.01;
-
   modelViewMatrix = mat4();
 
   modelViewMatrix = mult(
@@ -467,9 +466,12 @@ var render = function () {
   drawBody(bodyBuffers, woodTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0, 0.5 * BODY_HEIGHT, 0.0));
-  // modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadUD], [1, 0, 0])); // Y-axis rotation
+  modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadUD], [1, 0, 0])); // Y-axis rotation
+  modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
+  drawHeadUD(headUDBuffers, woodTextures);
+
+  modelViewMatrix = mult(modelViewMatrix, translate(0, 0.5 * HEAD_UD, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadLR], [0, 1, 0])); // Y-axis rotation
-  // modelViewMatrix = mult(rotate(theta[HeadLR], [0, 1, 0]), modelViewMatrix); // X-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
   drawHead(headBuffers, woodTextures);
 
