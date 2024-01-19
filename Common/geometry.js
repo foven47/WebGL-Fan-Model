@@ -64,12 +64,12 @@ function cube(s, alpha) {
   ];
 
   var cubeFaceColors = [
-    [0.0, 1.0, 1.0, alpha], //  (front face)
-    [0.0, 1.0, 1.0, alpha], //  (right face)
-    [0.0, 1.0, 1.0, alpha], //  (top face)
-    [0.0, 1.0, 1.0, alpha], //  (bottom face)
-    [0.0, 1.0, 1.0, alpha], //  (back face)
-    [0.0, 1.0, 1.0, alpha], //  (left face)
+    [1.0, 1.0, 1.0, alpha], //  (front face)
+    [1.0, 1.0, 1.0, alpha], //  (right face)
+    [1.0, 1.0, 1.0, alpha], //  (top face)
+    [1.0, 1.0, 1.0, alpha], //  (bottom face)
+    [1.0, 1.0, 1.0, alpha], //  (back face)
+    [1.0, 1.0, 1.0, alpha], //  (left face)
   ];
 
   var cubeElements = [
@@ -201,7 +201,7 @@ function cylinder(numSlices, numStacks, caps) {
   var topCenter = [0.0, top, 0.0];
   var bottomCenter = [0.0, bottom, 0.0];
 
-  var sideColor = [1.0, 1.0, 1.0, 0.5];
+  var sideColor = [1.0, 1.0, 1.0, 1.0];
   var topColor = [0.0, 1.0, 0.0, 1.0];
   var bottomColor = [0.0, 0.0, 1.0, 1.0];
 

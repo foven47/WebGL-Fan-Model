@@ -103,7 +103,7 @@ window.onload = function init() {
   headUDBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
 
   //Create 3D object : Cube
-  var myCube = cube(1, 0.3);
+  var myCube = cube(1, 0.1);
   myCube.rotate(0.0, [1, 1, 1]); //Rotate cube a bit
   myCube.translate(0.0, 0.0, 0.0); //Move cube to the right
   bladeBuffers = createBuffersForShape(myCube); //Create buffer for cube
@@ -126,7 +126,7 @@ window.onload = function init() {
     return texture;
   }
 
-  woodTextures = createTexture("woodText");
+  fanTextures = createTexture("woodText");
   plainTexture = createTexture("plainText");
 
   //Load shaders and initialize attribute buffers
@@ -251,6 +251,14 @@ window.onload = function init() {
       gl.getUniformLocation(program, "specularProduct"),
       flatten(specularProduct)
     );
+  };
+
+  document.getElementById("metal-button").onclick = function () {
+    fanTextures = createTexture("metalText");
+  };
+
+  document.getElementById("wood-button").onclick = function () {
+    fanTextures = createTexture("woodText");
   };
 
   gl.uniform4fv(
@@ -458,27 +466,27 @@ var render = function () {
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[BaseUD], [1, 0, 0])); // Y-axis rotation
   modelViewMatrix = mult(rotate(theta[BaseLR], [0, 1, 0]), modelViewMatrix); // X-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawBase(baseBuffers, woodTextures);
+  drawBase(baseBuffers, fanTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0.0, 3, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[Body], [1, 0, 0]));
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawBody(bodyBuffers, woodTextures);
+  drawBody(bodyBuffers, fanTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0, 0.5 * BODY_HEIGHT, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadUD], [1, 0, 0])); // Y-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawHeadUD(headUDBuffers, woodTextures);
+  drawHeadUD(headUDBuffers, fanTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0, 0.5 * HEAD_UD, 0.0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadLR], [0, 1, 0])); // Y-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawHead(headBuffers, woodTextures);
+  drawHead(headBuffers, fanTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0, 0, 0.5 * HEAD_Z));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[HeadRing], [0, 1, 0])); // Y-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
-  drawHeadRing(headRing, woodTextures);
+  drawHeadRing(headRing, fanTextures);
 
   modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0, 0));
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[Blade], [0, 0, 1]));
