@@ -64,7 +64,7 @@ function doWhichKey(e) {
 window.addEventListener('keypress', function (e){
   var key = doWhichKey(e);
   console.log("You pressed : " + key);
-  if (key == "s" || key == "S" ) { //For start or stop or pause animation
+  if (e.keyCode === 13) { //For start or stop or pause animation
     isHeadRotateLR = !isHeadRotateLR;
   }else if (key == "0" ) { 
     bladeSpeed = 0;
@@ -95,7 +95,7 @@ window.onload = function init() {
   //Set up viewport using the resolution of canvas
   gl.viewport(0, 0, canvas.width, canvas.height);
 
-  gl.clearColor(0.5, 0.5, 0.5, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
   //Enable the depth testing
   gl.enable(gl.DEPTH_TEST);
@@ -128,7 +128,7 @@ window.onload = function init() {
   headUDBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
 
   //Create 3D object : Cube
-  var myCube = cube(1, 0.1);
+  var myCube = cube(1, 0.3);
   myCube.rotate(0.0, [1, 1, 1]); //Rotate cube a bit
   myCube.translate(0.0, 0.0, 0.0); //Move cube to the right
   bladeBuffers = createBuffersForShape(myCube); //Create buffer for cube
