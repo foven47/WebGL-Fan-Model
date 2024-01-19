@@ -1,6 +1,5 @@
 //Set default value for theta
 var theta = [0, 0, 0, 0, 0, 0, 0];
-var moveLeft = 0;
 
 var BaseUD = 0;
 var BaseLR = 1;
@@ -12,6 +11,7 @@ var Blade = 6;
 
 var modelViewMatrix;
 
+//Set Size of each part
 var BASE_HEIGHT = 1.0;
 var BASE_WIDTH = 5.0;
 
@@ -31,13 +31,13 @@ var BLADE_HEIGHT = 5.0;
 var BLADE_WIDTH = 1.5;
 var BLADE_THICK = 0.2;
 
+//Set initial model position
 var modelPositionX = 0.0;
 var modelPositionY = -6.0;
 
-var isRotate = false;
+//Set animation movement
 var isHeadRotateLR = false;
 var toLeft = false;
-
 var bladeSpeed = 0; // Initial rotation speed
 
 //shade, ambient, lighting
@@ -55,30 +55,35 @@ var ambientProduct = mult(lightAmbient, materialAmbient);
 var diffuseProduct = mult(lightDiffuse, materialDiffuse);
 var specularProduct = mult(lightSpecular, materialSpecular);
 
+//Event listener for keypress
 function doWhichKey(e) {
   e = e || window.event;
   let charCode = e.charCode || e.which;
   return String.fromCharCode(charCode);
 }
 
-window.addEventListener('keypress', function (e){
-  var key = doWhichKey(e);
-  console.log("You pressed : " + key);
-  if (e.keyCode === 13) { //For start or stop or pause animation
-    isHeadRotateLR = !isHeadRotateLR;
-  }else if (key == "0" ) { 
-    bladeSpeed = 0;
-  } else if (key == "1" ) { 
-    bladeSpeed = 2;
-  } else if (key == "2" ) { 
-    bladeSpeed = 5;
-  } else if (key == "3" ) { 
-    bladeSpeed = 10;
-  } else {
-    //If user pressed other key, nothing happened
-  }
-}, false);
-
+window.addEventListener(
+  "keypress",
+  function (e) {
+    var key = doWhichKey(e);
+    console.log("You pressed : " + key);
+    if (e.keyCode === 13) {
+      //For start or stop or pause animation
+      isHeadRotateLR = !isHeadRotateLR;
+    } else if (key == "0") {
+      bladeSpeed = 0;
+    } else if (key == "1") {
+      bladeSpeed = 2;
+    } else if (key == "2") {
+      bladeSpeed = 5;
+    } else if (key == "3") {
+      bladeSpeed = 10;
+    } else {
+      //If user pressed other key, nothing happened
+    }
+  },
+  false
+);
 
 window.onload = function init() {
   //Get the html canvas element by id and stored it into canvas
@@ -103,35 +108,35 @@ window.onload = function init() {
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   // Create and initialize  buffer objects
 
-  //Create 3D object : Cylinder
+  //Create 3D object
+  //Cylinder
   var myCylinder = cylinder(72, 3, true);
-  myCylinder.scale(1.0, 1.0, 1.0); //Smaller the size of cylinder
-  myCylinder.rotate(0.0, [1, 1, 1]); //Rotate cylinder a bit
-  myCylinder.translate(0.0, 0.0, 0.0); //No movement for cylinder
-  baseBuffers = createBuffersForShape(myCylinder); //Create buffer for cylinder
-  bodyBuffers = createBuffersForShape(myCylinder); //Create buffer for cylinder
-  headButtonBuffers = createBuffersForShape(myCylinder); //Create buffer for cylinder
+  myCylinder.scale(1.0, 1.0, 1.0); //Initial size
+  myCylinder.rotate(0.0, [1, 1, 1]); //Initial rotation
+  myCylinder.translate(0.0, 0.0, 0.0); //Initial position
+  baseBuffers = createBuffersForShape(myCylinder); //Create buffer for base
+  bodyBuffers = createBuffersForShape(myCylinder); //Create buffer for body
 
-  myCylinder.rotate(90.0, [1, 0, 0]); //Rotate cylinder a bit
-  headBuffers = createBuffersForShape(myCylinder); //Create buffer for sphere
+  myCylinder.rotate(90.0, [1, 0, 0]); //Initial rotation for head
+  headBuffers = createBuffersForShape(myCylinder); //Create buffer for head
 
   var myCylinder2 = cylinder(72, 3, false);
-  myCylinder2.scale(1.0, 1.0, 1.0); //Smaller the size of cylinder
-  myCylinder2.rotate(90.0, [1, 0, 0]); //Rotate cylinder a bit
+  myCylinder2.scale(1.0, 1.0, 1.0); //Initial size
+  myCylinder2.rotate(90.0, [1, 0, 0]); //Initial rotation
   myCylinder2.translate(0.0, 0.0, 0.0); //No movement for cylinder
   headRing = createBuffersForShape(myCylinder2);
 
-  //Create 3D shape : Sphere
+  //Sphere
   var mySphere = sphere(5);
-  mySphere.scale(1, 1, 1); //Smaller the size of sphere
-  mySphere.translate(0.0, 0.0, 0.0); //
-  headUDBuffers = createBuffersForShape(mySphere); //Create buffer for sphere
+  mySphere.scale(1, 1, 1); //Initial size
+  mySphere.translate(0.0, 0.0, 0.0); //Initial position
+  headUDBuffers = createBuffersForShape(mySphere); //Create buffer for HeadUD
 
-  //Create 3D object : Cube
+  //Cube
   var myCube = cube(1, 0.3);
-  myCube.rotate(0.0, [1, 1, 1]); //Rotate cube a bit
-  myCube.translate(0.0, 0.0, 0.0); //Move cube to the right
-  bladeBuffers = createBuffersForShape(myCube); //Create buffer for cube
+  myCube.rotate(0.0, [1, 1, 1]); //Initial rotation
+  myCube.translate(0.0, 0.0, 0.0); //Initial position
+  bladeBuffers = createBuffersForShape(myCube); //Create buffer for Blade
 
   //Configure texture
   function createTexture(id) {
@@ -151,6 +156,7 @@ window.onload = function init() {
     return texture;
   }
 
+  // Create textures for different materials
   fanTextures = createTexture("woodText");
   plainTexture = createTexture("plainText");
 
@@ -167,31 +173,37 @@ window.onload = function init() {
   //Set the projection of orthographic (representing 3D objects in 2D screen)
   projection = ortho(-10 * aspect, 10 * aspect, -10, 10, -10, 10);
 
+  //Rotate Base Up Down
   var baseUD = document.getElementById("baseUD");
   baseUD.addEventListener("input", function () {
     theta[BaseUD] = parseFloat(baseUD.value);
   });
 
+  //Rotate Base Left Right
   var baseLR = document.getElementById("baseLR");
   baseLR.addEventListener("input", function () {
     theta[BaseLR] = parseFloat(baseLR.value);
   });
 
+  //Rotate Head Up Down
   var headUD = document.getElementById("headUD");
   headUD.addEventListener("input", function () {
     theta[HeadUD] = parseFloat(headUD.value);
   });
 
+  //Rotate Head Left Right
   var headLR = document.getElementById("headLR");
   headLR.addEventListener("input", function () {
     theta[HeadLR] = parseFloat(headLR.value);
   });
 
+  //Rotate Blade
   var blade = document.getElementById("blade");
   blade.addEventListener("input", function () {
     theta[Blade] = parseFloat(blade.value);
   });
 
+  // Change position X and Y
   var positionx = document.getElementById("positionx");
   positionx.addEventListener("input", function () {
     modelPositionX = parseFloat(positionx.value);
@@ -201,6 +213,7 @@ window.onload = function init() {
     modelPositionY = parseFloat(positiony.value);
   });
 
+  //To control fan speed
   document.getElementById("blade-stop-button").onclick = function () {
     bladeSpeed = 0;
   };
@@ -214,6 +227,7 @@ window.onload = function init() {
     bladeSpeed = 10;
   };
 
+  //Control Fan Rotation
   document.getElementById("head-LR-button").onclick = function () {
     isHeadRotateLR = !isHeadRotateLR;
   };
@@ -278,10 +292,10 @@ window.onload = function init() {
     );
   };
 
+  //Change model texture
   document.getElementById("metal-button").onclick = function () {
     fanTextures = createTexture("metalText");
   };
-
   document.getElementById("wood-button").onclick = function () {
     fanTextures = createTexture("woodText");
   };
@@ -365,18 +379,14 @@ function setAttributesForShape({ cBuffer, vBuffer, tBuffer }) {
   gl.enableVertexAttribArray(vTexCoord);
 }
 
-//Draw shape of the sphere, cyliner and cube by
-// Create a buffer object, initialize it, and associate it with the
-// associated attribute variable in our vertex shader
+// Draw the Eah part of the fan with the specified shape buffers and texture
 function drawBase(shapeBuffers, texture) {
   var s = scalem(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
   var instanceMatrix = mult(translate(0.0, 0.0, 0.0), s);
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
-
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 
@@ -386,6 +396,7 @@ function drawBody(shapeBuffers, texture) {
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 function drawHeadUD(shapeBuffers, texture) {
@@ -394,9 +405,7 @@ function drawHeadUD(shapeBuffers, texture) {
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
-
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 function drawHead(shapeBuffers, texture) {
@@ -405,9 +414,7 @@ function drawHead(shapeBuffers, texture) {
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
-
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
 function drawHeadRing(shapeBuffers, texture) {
@@ -416,13 +423,11 @@ function drawHeadRing(shapeBuffers, texture) {
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
-
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 }
-
 function drawBlade(shapeBuffers, texture) {
+  //To ignore color with ambient, diffuse, specular
   gl.uniform1i(gl.getUniformLocation(program, "onlyTexture"), 1);
 
   var s = scalem(BLADE_WIDTH, BLADE_HEIGHT, BLADE_THICK);
@@ -430,9 +435,7 @@ function drawBlade(shapeBuffers, texture) {
   var t = mult(modelViewMatrix, instanceMatrix);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
   setAttributesForShape(shapeBuffers);
-
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 
   //2nd Blade
@@ -441,18 +444,18 @@ function drawBlade(shapeBuffers, texture) {
   var t2 = mult(modelViewMatrix, instanceMatrix2);
   gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t2));
   setAttributesForShape(shapeBuffers);
-
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
   gl.drawArrays(gl.TRIANGLES, 0, shapeBuffers.numVertices);
 
   gl.uniform1i(gl.getUniformLocation(program, "onlyTexture"), 0);
 }
 
+//Animation blade rotation
 function rotatingBlade() {
   theta[Blade] += bladeSpeed; // Increment rotation angle
 }
 
+//Animation Left Right head rotation
 function leftRightHeadAnimation() {
   var targetAngle = 90;
   if (isHeadRotateLR && !toLeft && theta[HeadLR] < targetAngle) {
@@ -472,22 +475,30 @@ function leftRightHeadAnimation() {
 
 //Program generation function
 var render = function () {
+  // Clear the color and depth buffers
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Set the projection matrix uniform
   gl.uniformMatrix4fv(
     gl.getUniformLocation(program, "projectionMatrix"),
     false,
     flatten(projection)
   );
 
+  // Perform animations for the rotating blades and left-right head movement
   rotatingBlade();
   leftRightHeadAnimation();
 
   modelViewMatrix = mat4();
 
+  // Apply translation, Y-axis rotation, X-axis rotation, and scale to the modelViewMatrix
   modelViewMatrix = mult(
     modelViewMatrix,
     translate(modelPositionX, modelPositionY, 0.0)
   );
+
+  //Draw the all part of the fan using the specified buffers and texture
+
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[BaseUD], [1, 0, 0])); // Y-axis rotation
   modelViewMatrix = mult(rotate(theta[BaseLR], [0, 1, 0]), modelViewMatrix); // X-axis rotation
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
@@ -517,13 +528,6 @@ var render = function () {
   modelViewMatrix = mult(modelViewMatrix, rotate(theta[Blade], [0, 0, 1]));
   modelViewMatrix = mult(modelViewMatrix, scalem(1, 1, 1));
   drawBlade(bladeBuffers, plainTexture);
-
-  // modelViewMatrix = mat4();
-  // modelViewMatrix = mult(modelViewMatrix, translate(0.0, 0.0, 0.0));
-  // modelViewMatrix = mult(modelViewMatrix, rotate(theta[xAxis], [1, 0, 0]));
-  // modelViewMatrix = mult(modelViewMatrix, rotate(theta[yAxis], [0, 1, 0]));
-  // modelViewMatrix = mult(modelViewMatrix, rotate(theta[zAxis], [0, 0, 1]));
-  // drawCylinder();
 
   //Request render canvas per frame
   requestAnimFrame(render);
