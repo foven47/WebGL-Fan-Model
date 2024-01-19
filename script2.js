@@ -55,6 +55,31 @@ var ambientProduct = mult(lightAmbient, materialAmbient);
 var diffuseProduct = mult(lightDiffuse, materialDiffuse);
 var specularProduct = mult(lightSpecular, materialSpecular);
 
+function doWhichKey(e) {
+  e = e || window.event;
+  let charCode = e.charCode || e.which;
+  return String.fromCharCode(charCode);
+}
+
+window.addEventListener('keypress', function (e){
+  var key = doWhichKey(e);
+  console.log("You pressed : " + key);
+  if (key == "s" || key == "S" ) { //For start or stop or pause animation
+    isHeadRotateLR = !isHeadRotateLR;
+  }else if (key == "0" ) { 
+    bladeSpeed = 0;
+  } else if (key == "1" ) { 
+    bladeSpeed = 2;
+  } else if (key == "2" ) { 
+    bladeSpeed = 5;
+  } else if (key == "3" ) { 
+    bladeSpeed = 10;
+  } else {
+    //If user pressed other key, nothing happened
+  }
+}, false);
+
+
 window.onload = function init() {
   //Get the html canvas element by id and stored it into canvas
   canvas = document.getElementById("gl-canvas");

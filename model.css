@@ -51,3 +51,7 @@ body {
     border-radius: 10px;
     background-color: transparent;
 }
+
+.slider {
+    padding: 10px;
+}
